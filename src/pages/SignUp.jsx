@@ -20,7 +20,7 @@ const SignUp = () => {
     const clearResponseMessages = () => {
       if (responseMessage) {
         setResponseMessage("");
-        navigate("/vaccines/"+localStorage.nid);
+        navigate("/signin");
       }
     };
 
@@ -75,15 +75,27 @@ const SignUp = () => {
       if (response.success) {
         setDisableFields(true);
         setErrorMessage("");
-        setResponseMessage(response.message);
+        if (response && response.message) {
+          setResponseMessage(response.message);
+        } else {
+          setResponseMessage("Registration has been completed successfully!");
+        }
         // window.location.reload();
       } else {
         setErrorMessage("");
-        setResponseMessage(response.message);
+        if (response && response.message) {
+          setResponseMessage(response.message);
+        } else {
+          setResponseMessage("Registration has been completed successfully!");
+        }
       }
     } catch (error) {
       setResponseMessage("");
-      setErrorMessage(response.message);
+      if (error && error.message) {
+        setErrorMessage(error.message);
+      } else {
+        setErrorMessage("Registration has failed!");
+      }
     }
   };
 

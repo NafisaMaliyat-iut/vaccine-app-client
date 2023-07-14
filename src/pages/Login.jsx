@@ -24,20 +24,32 @@ const Login = () => {
   };
 
   useEffect(() => {
-    const clearMessages = () => {
-      setErrorMessage("");
-      setResponseMessage("");
+    const clearResponseMessages = () => {
+      if (responseMessage) {
+        setResponseMessage("");
+        navigate("/signin");
+      }
     };
 
-    if (errorMessage || responseMessage) {
-      const timer = setTimeout(clearMessages, 5000);
+    if (responseMessage) {
+      const timer = setTimeout(clearResponseMessages, 1000);
       return () => clearTimeout(timer);
     }
-  }, [errorMessage, responseMessage]);
+  }, [responseMessage]);
+
+  useEffect(() => {
+    const clearErrorMessages = () => {
+      setErrorMessage("");
+    };
+
+    if (errorMessage) {
+      const timer = setTimeout(clearErrorMessages, 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [errorMessage]);
 
   const handleSignIn = async (e) => {
     e.preventDefault();
-
 
     const config = {
       header: {
@@ -50,32 +62,43 @@ const Login = () => {
         "https://vaccine-app-server-kilfewcikq-uc.a.run.app/api/auth/login",
         {
           n_id: nid,
-          password
+          password,
         },
         config
-      )
+      );
 
-      const response = user.data
+      const response = user.data;
       if (response.success) {
-        localStorage.setItem("token", response.token)
+        localStorage.setItem("token", response.token);
         setDisableFields(true);
         setErrorMessage("");
-        setResponseMessage(response.message)
+        if (response && response.message) {
+          setResponseMessage(response.message);
+        } else {
+          setResponseMessage("Logged in successfully!");
+        }
         localStorage.setItem("nid", nid);
-        window.location.reload()
+        window.location.reload();
       } else {
         setErrorMessage("");
-        setResponseMessage(response.message)
+        if (response && response.message) {
+          setResponseMessage(response.message);
+        } else {
+          setResponseMessage("Logged in successfully!");
+        }
       }
     } catch (error) {
       setResponseMessage("");
-      setErrorMessage(response.message);
+      if (error && error.message) {
+        setErrorMessage(error.message);
+      } else {
+        setErrorMessage("Login has failed!");
+      }
     }
   };
 
   return (
     <fieldset disabled={disableFields}>
-
       <form className="bg-white relative lg:py-4" onSubmit={handleSignIn}>
         <div
           className="flex flex-col items-center justify-between pt-0 pr-10 pb-0 pl-10 mt-0 mr-auto mb-0 ml-auto max-w-7xl
@@ -108,9 +131,11 @@ const Login = () => {
                       type="text"
                       onChange={(e) => handleKeyPress(e)}
                       className={`border placeholder-gray-400 focus:outline-none
-                  ${validNid ? "focus:border-black" : "border-red-300"
-                        } w-full pt-4 pr-4 pb-4 pl-4 mt-2 mr-0 mb-0 ml-0 text-base block bg-white ${validNid ? "border-indigo-300" : "border-red-300"
-                        } rounded-md`}
+                  ${
+                    validNid ? "focus:border-black" : "border-red-300"
+                  } w-full pt-4 pr-4 pb-4 pl-4 mt-2 mr-0 mb-0 ml-0 text-base block bg-white ${
+                        validNid ? "border-indigo-300" : "border-red-300"
+                      } rounded-md`}
                     />
                   </div>
 
@@ -137,12 +162,15 @@ const Login = () => {
                     </div>
                   </Link>
                   {errorMessage && <RedAlert alert_message={errorMessage} />}
-                  {!errorMessage && responseMessage && <GreenAlert alert_message={responseMessage} />}
+                  {!errorMessage && responseMessage && (
+                    <GreenAlert alert_message={responseMessage} />
+                  )}
                   <div className="relative">
                     <button
                       className={`w-full inline-block pt-4 pr-5 pb-4 pl-5 text-xl font-medium text-center text-white  bg-indigo-500
-                    rounded-lg transition duration-200 hover:bg-indigo-600 ${validNid ? "" : "cursor-not-allowed"
-                        } ease`}
+                    rounded-lg transition duration-200 hover:bg-indigo-600 ${
+                      validNid ? "" : "cursor-not-allowed"
+                    } ease`}
                       disabled={!validNid}
                     >
                       Login
