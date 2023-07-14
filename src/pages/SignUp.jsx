@@ -17,16 +17,29 @@ const SignUp = () => {
   const [errorMessage, setErrorMessage] = useState("");
 
   useEffect(() => {
-    const clearMessages = () => {
-      setErrorMessage("");
-      setResponseMessage("");
+    const clearResponseMessages = () => {
+      if (responseMessage) {
+        setResponseMessage("");
+        navigate("/vaccines/"+localStorage.nid);
+      }
     };
 
-    if (errorMessage || responseMessage) {
-      const timer = setTimeout(clearMessages, 5000);
+    if (responseMessage) {
+      const timer = setTimeout(clearResponseMessages, 1000);
       return () => clearTimeout(timer);
     }
-  }, [errorMessage, responseMessage]);
+  }, [responseMessage]);
+
+  useEffect(() => {
+    const clearErrorMessages = () => {
+      setErrorMessage("");
+    };
+
+    if (errorMessage) {
+      const timer = setTimeout(clearErrorMessages, 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [errorMessage]);
 
   const handleKeyPress = (e) => {
     const re = /^[0-9]*$/;
@@ -62,7 +75,7 @@ const SignUp = () => {
       if (response.success) {
         setDisableFields(true);
         setErrorMessage("");
-        navigate("/signin");
+        setResponseMessage(response.message);
         // window.location.reload();
       } else {
         setErrorMessage("");
